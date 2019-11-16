@@ -1,3 +1,10 @@
+// Instrumentor::Get().BeginSession("Session Name");   // Begin session 
+// {
+//     InstrumentationTimer timer("Profiled Scope Name");      // Place code like this in scopes you'd like to include in profiling
+//     // Code
+// }
+// Instrumentor::Get().EndSession();                   // End Session
+
 #pragma once
 
 #include <string>
