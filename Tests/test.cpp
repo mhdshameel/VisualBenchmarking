@@ -1,4 +1,4 @@
-#include "../Instrumentor.h"
+#include "../benchmark.h"
 #include <iostream>
 
 int fibonacci(int number) {
@@ -15,7 +15,7 @@ int fibonacci(int number) {
 int main() {
     int number;
     std::cin >> number;
-    Instrumentor::Get().BeginSession("Session Name");
+    START_SESSION("Fibonacci");
     std::cout << fibonacci(number) << std::endl;
-    Instrumentor::Get().EndSession();
+    END_SESSION();
 }

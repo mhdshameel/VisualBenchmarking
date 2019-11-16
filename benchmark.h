@@ -113,7 +113,11 @@ public:
 #define BENCHMARKING 1
 #if BENCHMARKING
     #define PROFILE_SCOPE(name) InstrumentationTimer timer(name)
-    #define PROFILE_FUNCTION() PROFILE_SCOPE(__PRETTY_FUNCTION__)
+    #define START_SESSION(name) Instrumentor::Get().BeginSession(name)
+    #define END_SESSION() Instrumentor::Get().EndSession()
+    #define PROFILE_FUNCTION() PROFILE_SCOPE(__FUNCTION__)
+    #define PROFILE_FUNCTION_DETAILED() PROFILE_SCOPE(__PRETTY_FUNCTION__)
 #else
     #define PROFILE_FUNCTION() 
+    #define PROFILE_FUNCTION_DETAILED()
 #endif
