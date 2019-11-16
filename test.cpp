@@ -13,7 +13,9 @@ int fibonacci(int number) {
 }
 
 int main() {
+    int number;
+    std::cin >> number;
     Instrumentor::Get().BeginSession("Session Name");
-    std::cout << fibonacci(100) << std::endl;
+    std::cout << fibonacci(number) << std::endl;
     Instrumentor::Get().EndSession();
 }
