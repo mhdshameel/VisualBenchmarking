@@ -1,20 +1,6 @@
 #include "../benchmark.h"
 #include <iostream>
 
-#define ON 1
-#define OFF 0
-#define BENCHMARKING ON
-#if BENCHMARKING
-    #define PROFILE_SCOPE(name) InstrumentationTimer timer(name)
-    #define START_SESSION(name) Instrumentor::Get().BeginSession(name)
-    #define END_SESSION() Instrumentor::Get().EndSession()
-    #define PROFILE_FUNCTION() PROFILE_SCOPE(__FUNCTION__)
-    #define PROFILE_FUNCTION_DETAILED() PROFILE_SCOPE(__PRETTY_FUNCTION__)
-#else
-    #define PROFILE_FUNCTION() 
-    #define PROFILE_FUNCTION_DETAILED()
-#endif
-
 int fibonacci(int number) {
     PROFILE_FUNCTION();
 

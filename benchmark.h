@@ -1,11 +1,9 @@
-// Instrumentor::Get().BeginSession("Session Name");   // Begin session 
-// {
-//     InstrumentationTimer timer("Profiled Scope Name");      // Place code like this in scopes you'd like to include in profiling
-//     // Code
-// }
-// Instrumentor::Get().EndSession();                   // End Session
-
 #pragma once
+
+#define ON 1
+#define OFF 0
+
+#define BENCHMARKING ON
 
 #include <string>
 #include <chrono>
@@ -109,3 +107,14 @@ public:
         m_Stopped = true;
     }
 };
+
+#if BENCHMARKING
+    #define PROFILE_SCOPE(name) InstrumentationTimer timer(name)
+    #define START_SESSION(name) Instrumentor::Get().BeginSession(name)
+    #define END_SESSION() Instrumentor::Get().EndSession()
+    #define PROFILE_FUNCTION() PROFILE_SCOPE(__FUNCTION__)
+    #define PROFILE_FUNCTION_DETAILED() PROFILE_SCOPE(__PRETTY_FUNCTION__)
+#else
+    #define PROFILE_FUNCTION() 
+    #define PROFILE_FUNCTION_DETAILED()
+#endif
