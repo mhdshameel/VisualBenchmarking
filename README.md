@@ -1,7 +1,7 @@
 # VisualBenchmarking
 Visual Benchmarking using C++ and Chrome Tracing for single threaded projects, multithreading will be supported in the future
 
-#### Usage
+## Usage
 ##### Include "benchmark.h" in to your project
 
 ##### To start the session for benchmarking, call this function
