@@ -103,3 +103,11 @@ public:
         m_Stopped = true;
     }
 };
+
+#define BENCHMARKING 1
+#if BENCHMARKING
+    #define PROFILE_SCOPE(name) InstrumentationTimer timer(name)
+    #define PROFILE_FUNCTION() PROFILE_SCOPE(__FUNCSIG__)
+#else
+    #define PROFILE_FUNCTION() 
+#endif
