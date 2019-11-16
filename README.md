@@ -46,7 +46,7 @@ int main() {
 }
 ```
 
-##### Open [Chrome Tracing](chrome://tracing/) which comes pre-installed with Google Chrome
+##### Open [Chrome Tracing](chrome://tracing/) which comes pre-installed with Google Chrome by typing chrome://tracing
 ##### After executing your code a file named results.json would appear drag and drop your json file in chrome tracing
 
 ##### To turn off benchmarking just mark BENCHMARKING OFF at line number 6 in the "benchmark.h" header file
