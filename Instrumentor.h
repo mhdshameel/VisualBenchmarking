@@ -12,12 +12,9 @@
 #include <algorithm>
 #include <fstream>
 
-#include <thread>
-
 struct ProfileResult {
     std::string Name;
     long long Start, End;
-    uint32_t ThreadID;
 };
 
 struct InstrumentationSession {
@@ -35,7 +32,8 @@ public:
     void BeginSession(const std::string& name, const std::string& filepath = "results.json") {
         m_OutputStream.open(filepath);
         WriteHeader();
-        m_CurrentSession = new InstrumentationSession{ name };
+        m_CurrentSession = new InstrumentationSession;
+        m_CurrentSession->Name = name;
     }
 
     void EndSession() {
@@ -59,7 +57,7 @@ public:
         m_OutputStream << "\"name\":\"" << name << "\",";
         m_OutputStream << "\"ph\":\"X\",";
         m_OutputStream << "\"pid\":0,";
-        m_OutputStream << "\"tid\":" << result.ThreadID << ",";
+        m_OutputStream << "\"tid\":0,";
         m_OutputStream << "\"ts\":" << result.Start;
         m_OutputStream << "}";
 
@@ -104,8 +102,7 @@ public:
         long long start = std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTimepoint).time_since_epoch().count();
         long long end = std::chrono::time_point_cast<std::chrono::microseconds>(endTimepoint).time_since_epoch().count();
 
-        uint32_t threadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
-        Instrumentor::Get().WriteProfile({ m_Name, start, end, threadID });
+        Instrumentor::Get().WriteProfile({ m_Name, start, end});
 
         m_Stopped = true;
     }
@@ -114,7 +111,7 @@ public:
 #define BENCHMARKING 1
 #if BENCHMARKING
     #define PROFILE_SCOPE(name) InstrumentationTimer timer(name)
-    #define PROFILE_FUNCTION() PROFILE_SCOPE(__FUNCSIG__)
+    #define PROFILE_FUNCTION() PROFILE_SCOPE(__PRETTY_FUNCTION__)
 #else
     #define PROFILE_FUNCTION() 
 #endif
