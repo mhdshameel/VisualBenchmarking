@@ -1,7 +1,9 @@
 #include "../benchmark.h"
 #include <iostream>
 
-#define BENCHMARKING 1
+#define ON 1
+#define OFF 0
+#define BENCHMARKING ON
 #if BENCHMARKING
     #define PROFILE_SCOPE(name) InstrumentationTimer timer(name)
     #define START_SESSION(name) Instrumentor::Get().BeginSession(name)

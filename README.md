@@ -5,7 +5,9 @@ Visual Benchmarking using C++ and Chrome Tracing for single threaded projects, m
 ##### Include "benchmark.h" in to your project
 ##### Add the following code after including the "benchmark.h"
 ```
-#define BENCHMARKING 1
+#define ON 1
+#define OFF 0
+#define BENCHMARKING ON
 #if BENCHMARKING
     #define PROFILE_SCOPE(name) InstrumentationTimer timer(name)
     #define START_SESSION(name) Instrumentor::Get().BeginSession(name)
@@ -63,7 +65,7 @@ int main() {
 ##### Open [Chrome Tracing](chrome://tracing/) which comes pre-installed with Google Chrome
 ##### After executing your code a file named results.json would appear drag and drop your json file in chrome tracing
 
-##### To turn off benchmarking just mark BENCHMARKING 0 from 1
+##### To turn off benchmarking just mark BENCHMARKING OFF
 ```
-#define BENCHMARKING 0
+#define BENCHMARKING OFF
 ```
