@@ -15,6 +15,8 @@
 struct ProfileResult {
     std::string Name;
     long long Start, End;
+    ProfileResult(const char* name, long long start, long long end) 
+        : Name(name), Start(start), End(end) {}
 };
 
 struct InstrumentationSession {
@@ -101,8 +103,8 @@ public:
 
         long long start = std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTimepoint).time_since_epoch().count();
         long long end = std::chrono::time_point_cast<std::chrono::microseconds>(endTimepoint).time_since_epoch().count();
-
-        Instrumentor::Get().WriteProfile({ m_Name, start, end});
+        
+        Instrumentor::Get().WriteProfile(ProfileResult(m_Name, start, end));
 
         m_Stopped = true;
     }
