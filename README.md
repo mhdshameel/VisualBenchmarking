@@ -45,3 +45,6 @@ int main() {
     END_SESSION();      //ending the session
 }
 ```
+
+Open [Chrome Tracing](chrome://tracing/) which comes pre-installed with Google Chrome
+After executing your code a file named results.json would appear drag and drop your json file in chrome tracing
