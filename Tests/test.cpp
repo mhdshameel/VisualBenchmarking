@@ -37,22 +37,20 @@ int main() {
 	std::cin >> n;
 	inMat(board, n, n);
 
-	{
-		#if DEBUG_MODE
-			START_SESSION("Sudoku Solver");
-			Timing T;
-		#endif
+	#if DEBUG_MODE
+		START_SESSION("Sudoku Solver");
+		Timing T;
+	#endif
 
-		if (sudokuSolver(board, n, 0, 0))
-			outMat(board, n, n);
-		else
-			std::cout << "I can't solve this Soduko!! So do you.";
+	if (sudokuSolver(board, n, 0, 0))
+		outMat(board, n, n);
+	else
+		std::cout << "I can't solve this Soduko!! So do you.";
 
-		#if DEBUG_MODE
-			END_SESSION();
-			std::cout << calls << std::endl;
-		#endif
-	}
+	#if DEBUG_MODE
+		END_SESSION();
+		std::cout << calls << std::endl;
+	#endif
 }
 
 void inMat(int matrix[][25], int r, int c) {
