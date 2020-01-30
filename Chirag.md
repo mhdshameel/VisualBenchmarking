@@ -1,5 +1,6 @@
 Hey Everyone,
-ACE, the technical society of Vivekananda School of Information Technology, VIPS congratulates you and your team for being shortlisted for the upcoming and most awaited event, HackVSIT 3.0 on January 31,2020 - February 1,2020. We appreciate your presence and would request you to kindly bring the following along with you for the event :-
+
+ACE, the technical society of Vivekananda School of Information Technology, VIPS congratulates you and your team for being shortlisted for the upcoming and most awaited event, HackVSIT 3.0 on January 31, 2020 - February 1, 2020. We appreciate your presence and would request you to kindly bring the following along with you for the event :-
 
 * Your own extentions
 * College/ School Identity Card
