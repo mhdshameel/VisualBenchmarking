@@ -18,6 +18,8 @@ Looking forward to your presence.
 * __Date__ - 31st January 2020 - 1st February 2020
 * __Reporting time__ - 9:00 AM
 
-Join HackVSIT discord channel using this invite link: 
+Join HackVSIT discord channel using this invite link: https://discord.gg/beWhYeP - automatic!
+
 With love,
+
 Team ACE❤️
