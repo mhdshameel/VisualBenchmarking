@@ -7,13 +7,12 @@
 
 #include <string>
 #include <chrono>
-#include <algorithm>
 #include <fstream>
 
 struct ProfileResult {
     std::string Name;
     long long Start, End;
-    ProfileResult(const char* name, long long start, long long end) 
+    ProfileResult(const char* name, long long start, long long end)
         : Name(name), Start(start), End(end) {}
 };
 
@@ -21,22 +20,41 @@ struct InstrumentationSession {
     std::string Name;
 };
 
-class Instrumentor {
-    InstrumentationSession* m_CurrentSession;
-    std::ofstream m_OutputStream;
-    int m_ProfileCount;
+class IInstrumentor
+{
+    static std::once_flag _creation_once_flag;
 public:
-    Instrumentor()
-        : m_CurrentSession(nullptr), m_ProfileCount(0) {}
+    IInstrumentor() : m_CurrentSession(nullptr) {}
+    InstrumentationSession* m_CurrentSession;
 
-    void BeginSession(const std::string& name, const std::string& filepath = "results.json") {
-        m_OutputStream.open(filepath);
-        WriteHeader();
+    virtual ~IInstrumentor() {}
+    virtual void EndSession() = 0;
+    virtual void BeginSession(const std::string& name) = 0;
+    virtual void WriteProfile(const ProfileResult& result) = 0;
+
+    static IInstrumentor& Get(bool output_to_console = false);
+
+    void SetCurrentSessionName(const std::string& name)
+    {
         m_CurrentSession = new InstrumentationSession;
         m_CurrentSession->Name = name;
     }
+};
 
-    void EndSession() {
+class FilestreamInstrumentor : public IInstrumentor {
+    std::ofstream m_OutputStream;
+    int m_ProfileCount;
+    const std::string filepath = "results.json";
+
+public:
+
+    virtual void BeginSession(const std::string& name) {
+        m_OutputStream.open(filepath);
+        WriteHeader();
+        SetCurrentSessionName(name);
+    }
+
+    virtual void EndSession() {
         WriteFooter();
         m_OutputStream.close();
         delete m_CurrentSession;
@@ -44,7 +62,7 @@ public:
         m_ProfileCount = 0;
     }
 
-    void WriteProfile(const ProfileResult& result) {
+    virtual void WriteProfile(const ProfileResult& result) {
         if (m_ProfileCount++ > 0)
             m_OutputStream << ",";
 
@@ -73,12 +91,47 @@ public:
         m_OutputStream << "]}";
         m_OutputStream.flush();
     }
+};
 
-    static Instrumentor& Get() {
-        static Instrumentor* instance = new Instrumentor();
-        return *instance;
+class ConsoleInstrumentator : public IInstrumentor {
+    std::mutex cout_mx;
+public:
+    ConsoleInstrumentator() {}
+
+    virtual void BeginSession(const std::string& name) {
+        SetCurrentSessionName(name);
+    }
+
+    virtual void EndSession() {
+        delete m_CurrentSession;
+        m_CurrentSession = nullptr;
+    }
+
+    virtual void WriteProfile(const ProfileResult& result) {
+        std::string name = result.Name;
+        std::replace(name.begin(), name.end(), '"', '\'');
+        auto lk = std::unique_lock(cout_mx);
+        std::cout << "name: " << name << ", ";
+        std::cout << "dur: " << (result.End - result.Start) << " microseconds, ";
+        std::cout << "ts: " << result.Start;
+        std::cout << std::endl;
     }
 };
+
+std::once_flag IInstrumentor::_creation_once_flag = std::once_flag();
+
+IInstrumentor& IInstrumentor::Get(bool output_to_console) {
+    static IInstrumentor* instance = nullptr;
+    std::call_once(_creation_once_flag,
+        [output_to_console]() {
+        if (output_to_console)
+            instance = new ConsoleInstrumentator();
+        else
+            instance = new FilestreamInstrumentor();
+        }
+        ); //thread safe initialization
+    return *instance;
+}
 
 class InstrumentationTimer {
     const char* m_Name;
@@ -101,20 +154,22 @@ public:
 
         long long start = std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTimepoint).time_since_epoch().count();
         long long end = std::chrono::time_point_cast<std::chrono::microseconds>(endTimepoint).time_since_epoch().count();
-        
-        Instrumentor::Get().WriteProfile(ProfileResult(m_Name, start, end));
+
+        IInstrumentor::Get().WriteProfile(ProfileResult(m_Name, start, end));
 
         m_Stopped = true;
     }
 };
 
 #if BENCHMARKING
-    #define PROFILE_SCOPE(name) InstrumentationTimer timer(name)
-    #define START_SESSION(name) Instrumentor::Get().BeginSession(name)
-    #define END_SESSION() Instrumentor::Get().EndSession()
-    #define PROFILE_FUNCTION() PROFILE_SCOPE(__FUNCTION__)
-    #define PROFILE_FUNCTION_DETAILED() PROFILE_SCOPE(__PRETTY_FUNCTION__)
+#define PROFILE_SCOPE(name) InstrumentationTimer timer(name)
+#define START_SESSION(name) IInstrumentor::Get().BeginSession(name)
+#define START_CONSOLE_SESSION(name) IInstrumentor::Get(true).BeginSession(name)
+#define END_SESSION() IInstrumentor::Get().EndSession()
+#define PROFILE_FUNCTION() PROFILE_SCOPE(__FUNCTION__)
+#define PROFILE_FUNCTION_DETAILED() PROFILE_SCOPE(__PRETTY_FUNCTION__)
 #else
-    #define PROFILE_FUNCTION() 
-    #define PROFILE_FUNCTION_DETAILED()
+#define PROFILE_FUNCTION() 
+#define PROFILE_FUNCTION_DETAILED()
 #endif
+
