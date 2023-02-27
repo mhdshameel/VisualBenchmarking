@@ -3,7 +3,9 @@
 #define ON 1
 #define OFF 0
 
+#ifndef BENCHMARKING
 #define BENCHMARKING ON
+#endif // BENCHMARKING
 
 #include <string>
 #include <chrono>
@@ -45,13 +47,14 @@ class FilestreamInstrumentor : public IInstrumentor {
     std::ofstream m_OutputStream;
     int m_ProfileCount;
     const std::string filepath = "results.json";
+    std::mutex write_mx;
 
 public:
 
     virtual void BeginSession(const std::string& name) {
         m_OutputStream.open(filepath);
         WriteHeader();
-        SetCurrentSessionName(name);
+        __super::SetCurrentSessionName(name);
     }
 
     virtual void EndSession() {
@@ -63,6 +66,7 @@ public:
     }
 
     virtual void WriteProfile(const ProfileResult& result) {
+        std::unique_lock lk(write_mx);
         if (m_ProfileCount++ > 0)
             m_OutputStream << ",";
 
@@ -171,5 +175,7 @@ public:
 #else
 #define PROFILE_FUNCTION() 
 #define PROFILE_FUNCTION_DETAILED()
+#define START_CONSOLE_SESSION(name)
+#define END_SESSION()
 #endif
 
