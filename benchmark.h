@@ -1,5 +1,12 @@
 #pragma once
 
+/*
+* This header only library was taken from
+* https://github.com/DefinitelyNotAnmol/VisualBenchmarking/blob/master/benchmark.h
+* And customized to add an option of profiling output to console using polymorphism
+* Customized version : https://github.com/mhdshameel/VisualBenchmarking
+* */
+
 #define ON 1
 #define OFF 0
 
@@ -10,6 +17,9 @@
 #include <string>
 #include <chrono>
 #include <fstream>
+#include <mutex>
+#include <algorithm>
+#include <iostream>
 
 struct ProfileResult {
     std::string Name;
@@ -24,6 +34,8 @@ struct InstrumentationSession {
 
 class IInstrumentor
 {
+private:
+    static IInstrumentor* instance;
     static std::once_flag _creation_once_flag;
 public:
     IInstrumentor() : m_CurrentSession(nullptr) {}
@@ -34,7 +46,8 @@ public:
     virtual void BeginSession(const std::string& name) = 0;
     virtual void WriteProfile(const ProfileResult& result) = 0;
 
-    static IInstrumentor& Get(bool output_to_console = false);
+    static IInstrumentor& Get();
+    static IInstrumentor& Create(bool output_to_console = false);
 
     void SetCurrentSessionName(const std::string& name)
     {
@@ -66,7 +79,7 @@ public:
     }
 
     virtual void WriteProfile(const ProfileResult& result) {
-        std::unique_lock lk(write_mx);
+        std::unique_lock<std::mutex> lk(write_mx);
         if (m_ProfileCount++ > 0)
             m_OutputStream << ",";
 
@@ -114,28 +127,13 @@ public:
     virtual void WriteProfile(const ProfileResult& result) {
         std::string name = result.Name;
         std::replace(name.begin(), name.end(), '"', '\'');
-        auto lk = std::unique_lock(cout_mx);
+        auto lk = std::unique_lock<std::mutex> (cout_mx);
         std::cout << "name: " << name << ", ";
-        std::cout << "dur: " << (result.End - result.Start) << " microseconds, ";
+        std::cout << "dur: " << std::chrono::microseconds(result.End - result.Start).count() << "us, ";
         std::cout << "ts: " << result.Start;
         std::cout << std::endl;
     }
 };
-
-std::once_flag IInstrumentor::_creation_once_flag = std::once_flag();
-
-IInstrumentor& IInstrumentor::Get(bool output_to_console) {
-    static IInstrumentor* instance = nullptr;
-    std::call_once(_creation_once_flag,
-        [output_to_console]() {
-        if (output_to_console)
-            instance = new ConsoleInstrumentator();
-        else
-            instance = new FilestreamInstrumentor();
-        }
-        ); //thread safe initialization
-    return *instance;
-}
 
 class InstrumentationTimer {
     const char* m_Name;
@@ -167,12 +165,14 @@ public:
 
 #if BENCHMARKING
 #define PROFILE_SCOPE(name) InstrumentationTimer timer(name)
-#define START_SESSION(name) IInstrumentor::Get().BeginSession(name)
-#define START_CONSOLE_SESSION(name) IInstrumentor::Get(true).BeginSession(name)
-#define END_SESSION() IInstrumentor::Get().EndSession()
+#define START_BENCHMARK_SESSION(name) IInstrumentor::Create(false).BeginSession(name)
+#define START_CONSOLE_SESSION(name) IInstrumentor::Create(true).BeginSession(name)
+#define END_BENCHMARK_SESSION() IInstrumentor::Get().EndSession()
 #define PROFILE_FUNCTION() PROFILE_SCOPE(__FUNCTION__)
 #define PROFILE_FUNCTION_DETAILED() PROFILE_SCOPE(__PRETTY_FUNCTION__)
 #else
+#define START_SESSION(name)
+#define PROFILE_SCOPE(name)
 #define PROFILE_FUNCTION() 
 #define PROFILE_FUNCTION_DETAILED()
 #define START_CONSOLE_SESSION(name)
