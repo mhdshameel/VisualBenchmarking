@@ -6,7 +6,7 @@ Visual Benchmarking using C++ and Chrome Tracing for single threaded projects, m
 
 ##### To start the session for benchmarking, call this function
 ```
-START_SESSION("Session Name");
+START_BENCHMARK_SESSION("Session Name");
 ```
 This profiles into a file that can be opened in Chrome tracing to view the benchmarking results
 ```
@@ -14,7 +14,7 @@ START_CONSOLE_SESSION("Session Name");
 ```
 This writes the benchmarked readings into the console.
 
-##### To profile any function in your benchmark while your session is active, add this function in  the beginning of the code of your function
+##### To profile any function in your benchmark while your session is active, add this function in the beginning of the code of your function
 ```
 PROFILE_FUNCTION();
 or
