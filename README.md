@@ -43,7 +43,7 @@ int fibonacci(int number) {
 int main() {
     int number;
     std::cin >> number;
-    START_SESSION("Fibonacci");     //starting the session from where benchmarking starts
+    START_BENCHMARK_SESSION("Fibonacci");     //starting the session from where benchmarking starts
     
     std::cout << fibonacci(number) << std::endl;    //this code will be benchmarked
     
