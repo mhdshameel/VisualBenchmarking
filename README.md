@@ -47,7 +47,7 @@ int main() {
     
     std::cout << fibonacci(number) << std::endl;    //this code will be benchmarked
     
-    END_SESSION();      //ending the session
+    END_BENCHMARK_SESSION();      //ending the session
 }
 ```
 
